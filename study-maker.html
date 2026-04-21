@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>분당중앙고 학습지 제작기</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f1efe9;
+    --border: #e2dfd6;
+    --border2: #c8c4b8;
+    --text: #1a1a18;
+    --text2: #6b6860;
+    --text3: #9e9b92;
+    --accent: #2563eb;
+    --accent-bg: #eff6ff;
+    --accent-text: #1d4ed8;
+    --warn-bg: #fffbeb;
+    --warn-text: #92400e;
+    --success-bg: #f0fdf4;
+    --success-text: #166534;
+    --danger-bg: #fef2f2;
+    --danger-text: #991b1b;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 4rem;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-logo {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .header-title { font-size: 16px; font-weight: 600; }
+  .header-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+  .badge {
+    font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    background: var(--accent-bg); color: var(--accent-text); font-weight: 500;
+  }
+
+  .wrap { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 12px; margin-top: 0;
+  }
+
+  /* Subject Grid */
+  .subject-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+  .subject-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .subject-btn:hover { border-color: var(--border2); background: var(--surface2); }
+  .subject-btn:active { transform: scale(0.97); }
+  .subject-btn.active {
+    border: 2px solid var(--accent);
+    background: var(--accent-bg);
+  }
+  .subject-btn .icon { font-size: 24px; margin-bottom: 8px; }
+  .subject-btn .name {
+    font-size: 13px; font-weight: 600; color: var(--text); display: block;
+  }
+  .subject-btn .range {
+    font-size: 10px; color: var(--text3); margin-top: 3px; display: block; line-height: 1.4;
+  }
+  .subject-btn.active .name { color: var(--accent-text); }
+
+  /* Info Card */
+  .info-card {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.75rem;
+    border: 1px solid var(--border);
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+  .info-card.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .info-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tag {
+    font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500;
+    background: var(--warn-bg); color: var(--warn-text);
+  }
+  .tag.blue { background: var(--accent-bg); color: var(--accent-text); }
+  .tag.red { background: var(--danger-bg); color: var(--danger-text); }
+  .tag.green { background: var(--success-bg); color: var(--success-text); }
+  .tip {
+    font-size: 12px; color: var(--text2); line-height: 1.7;
+    border-left: 2px solid var(--border2); padding-left: 10px;
+  }
+
+  /* Output Grid */
+  .output-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+  .output-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .output-btn:hover { border-color: var(--border2); background: var(--surface2); }
+  .output-btn:active { transform: scale(0.97); }
+  .output-btn.active { border: 2px solid var(--accent); background: var(--accent-bg); }
+  .output-btn .out-icon {
+    font-size: 22px; flex-shrink: 0; margin-top: 2px;
+  }
+  .output-btn .out-info {}
+  .output-btn .out-name {
+    font-size: 13px; font-weight: 600; color: var(--text); display: block; margin-bottom: 3px;
+  }
+  .output-btn .out-desc {
+    font-size: 11px; color: var(--text3); display: block; line-height: 1.4;
+  }
+  .output-btn.active .out-name { color: var(--accent-text); }
+
+  /* Generate Button */
+  .gen-btn {
+    width: 100%;
+    padding: 17px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .gen-btn:hover:not(:disabled) { background: #1d4ed8; }
+  .gen-btn:active:not(:disabled) { transform: scale(0.98); }
+  .gen-btn:disabled { background: var(--border2); color: var(--text3); cursor: not-allowed; }
+
+  /* Prompt Box */
+  .prompt-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+  .prompt-box.visible { display: block; }
+  .prompt-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .prompt-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .copy-btn {
+    font-size: 13px; padding: 7px 16px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    cursor: pointer; font-weight: 500;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .copy-btn:hover { background: #1d4ed8; }
+  .copy-btn:active { transform: scale(0.96); }
+  .copy-btn.done { background: #16a34a; }
+
+  .prompt-text {
+    font-size: 13px; line-height: 1.8; color: var(--text2);
+    white-space: pre-wrap;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    max-height: 280px;
+    overflow-y: auto;
+    margin-bottom: 1.25rem;
+    word-break: break-all;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+  .how-to-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; }
+  .step-num {
+    font-size: 11px; font-weight: 600; color: var(--accent-text);
+    background: var(--accent-bg); border-radius: 50%;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .step-text strong { font-weight: 600; color: var(--text); }
+
+  .spacer { height: 1.5rem; }
+
+  /* Bottom hint */
+  .hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text3);
+    padding: 1rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-logo">📚</div>
+      <div>
+        <div class="header-title">학습지 제작기</div>
+        <div class="header-sub">분당중앙고 1학년 1차 내신 대비</div>
+      </div>
+    </div>
+    <span class="badge">2026 중간고사</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="spacer"></div>
+  <div class="section-label">1단계 — 과목 선택</div>
+  <div class="subject-grid">
+    <button class="subject-btn" onclick="selectSubject('한국사')" data-subj="한국사">
+      <div class="icon">📜</div>
+      <span class="name">한국사1</span>
+      <span class="range">p.8~37<br>p.60~83</span>
+    </button>
+    <button class="subject-btn" onclick="selectSubject('통합사회')" data-subj="통합사회">
+      <div class="icon">🌏</div>
+      <span class="name">통합사회1</span>
+      <span class="range">p.6~79<br>학습지 포함</span>
+    </button>
+    <button class="subject-btn" onclick="selectSubject('영어')" data-subj="영어">
+      <div class="icon">📖</div>
+      <span class="name">공통영어1</span>
+      <span class="range">1·2과<br>부교재 24개</span>
+    </button>
+    <button class="subject-btn" onclick="selectSubject('과학')" data-subj="과학">
+      <div class="icon">🔬</div>
+      <span class="name">통합과학1</span>
+      <span class="range">p.16~57<br>p.96~117</span>
+    </button>
+    <button class="subject-btn" onclick="selectSubject('국어')" data-subj="국어">
+      <div class="icon">✏️</div>
+      <span class="name">공통국어1</span>
+      <span class="range">p.15~77<br>보충자료</span>
+    </button>
+  </div>
+
+  <div class="info-card" id="info-card"></div>
+
+  <div class="section-label">2단계 — 원하는 자료 선택</div>
+  <div class="output-grid">
+    <button class="output-btn" onclick="selectOutput('concept')" data-out="concept">
+      <div class="out-icon">📋</div>
+      <div class="out-info">
+        <span class="out-name">핵심개념 요약집</span>
+        <span class="out-desc">교사용 + 빈칸 학생용</span>
+      </div>
+    </button>
+    <button class="output-btn" onclick="selectOutput('quiz')" data-out="quiz">
+      <div class="out-icon">📝</div>
+      <div class="out-info">
+        <span class="out-name">서술형 문제지</span>
+        <span class="out-desc">문제/답안 분리 출력</span>
+      </div>
+    </button>
+    <button class="output-btn" onclick="selectOutput('slide')" data-out="slide">
+      <div class="out-icon">🗂</div>
+      <div class="out-info">
+        <span class="out-name">슬라이드 자료</span>
+        <span class="out-desc">교사용 + 빈칸 테스트</span>
+      </div>
+    </button>
+    <button class="output-btn" onclick="selectOutput('report')" data-out="report">
+      <div class="out-icon">📄</div>
+      <div class="out-info">
+        <span class="out-name">심층 보고서</span>
+        <span class="out-desc">백지복습 워크시트 포함</span>
+      </div>
+    </button>
+  </div>
+
+  <button class="gen-btn" id="gen-btn" onclick="generate()" disabled>
+    프롬프트 생성하기 →
+  </button>
+
+  <div class="prompt-box" id="prompt-box">
+    <div class="prompt-header">
+      <span class="prompt-title">복사해서 Claude에 붙여넣기</span>
+      <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">복사하기</button>
+    </div>
+    <div class="prompt-text" id="prompt-text"></div>
+    <div class="divider"></div>
+    <div class="how-to-title">사용 방법</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Claude.ai</strong>를 열고 교과서·학습지 사진을 첨부하세요</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">위 프롬프트를 <strong>복사</strong>해서 채팅창에 붙여넣고 전송하세요</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">생성된 자료를 <strong>구글 닥스에 붙여넣기</strong>하고 인쇄하면 완성!</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">NotebookLM 사용 시 <strong>PDF 업로드 후</strong> 동일한 프롬프트 입력</div>
+    </div>
+  </div>
+
+  <div class="hint">분당중앙고 출제 경향이 반영된 프롬프트예요 📌<br>사진을 여러 장 첨부할수록 정확도가 높아져요</div>
+
+</div>
+
+<script>
+const subjectInfo = {
+  한국사: {
+    tags: [['선택형 20문항 (90점)','blue'],['논술형 2문항 (10점)','green'],['해냄에듀','']],
+    tip: '사건의 인과관계·흐름 중심 출제. 논술형 배점이 낮으므로 선택형 개념 암기에 집중. 연도 암기보다 "왜 이 사건이 일어났는가"에 집중하세요.',
+  },
+  통합사회: {
+    tags: [['선택형만 24문항 (100점)','red'],['논술형 없음','green'],['비상교육','']],
+    tip: '논술형 없음 — 도표·지도·자료 해석 함정 선지가 핵심. 학습지와 추가 자료의 세부 개념까지 꼼꼼히 암기해야 해요.',
+  },
+  영어: {
+    tags: [['선택형 22문항 (85점)','blue'],['논술형 2문항 (15점)','red'],['YBM 와이비엠',''],['부교재 24개 지문','red']],
+    tip: '논술형 유형: ① 어법 오류 찾아 수정 (능동/수동·준동사·수일치) ② 조건 영작 (단어 변형 필수). 어형 변형 실수 시 0점 처리 주의. 부교재 지문 비중이 압도적으로 높아요.',
+  },
+  과학: {
+    tags: [['선택형 21문항 (75점)','blue'],['논술형 3문항 (25점)','red'],['비상교육',''],['과학중점학교','red']],
+    tip: '논술형 25점 고배점. "제시어를 포함하여 서술하시오" 조건 필수 준수. 물리·화학 파트 계산 문제 수능 수준. PPT·형성평가가 핵심 출제 소스.',
+  },
+  국어: {
+    tags: [['선택형 20문항 (80점)','blue'],['논술형 3문항 (20점)','green'],['창비교육','']],
+    tip: '보충자료가 시험 범위에 포함되므로 교과서 외 지문 연계 학습 필수. 논술형은 문법·문학·비문학 골고루 대비하세요.',
+  },
+};
+
+const prompts = {
+  한국사: {
+    concept: `업로드된 한국사 자료를 바탕으로 핵심 개념 요약집을 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 사건의 인과관계와 시대적 흐름 중심으로 정리
+- 단순 연도 암기보다 "왜 이 사건이 발생했는가" 맥락 강조
+- 주요 사건·인물·제도를 연도순 타임라인으로 시각화
+
+[출력 형식]
+교사용 정답본과 학생용 빈칸 테스트 두 버전을 연달아 출력해줘.
+핵심 사건명·결과·의의 부분을 ( )로 비워서 학생용 버전 구성.
+백지 복습용 워크시트를 마지막에 추가해줘.`,
+    quiz: `업로드된 한국사 자료를 바탕으로 서술형 문제 10문제를 출제해줘.
+
+[분당중앙고 출제 경향 반영]
+- 연도 암기 문제 금지. 인과관계 서술 문제로 구성
+- "사건 A가 발생한 시대적 배경을 서술하시오" 유형
+- "사건 A가 이후 사건 B에 미친 영향을 인과관계로 설명하시오" 유형
+- "특정 역사적 인물/사건의 의의와 한계를 서술하시오" 유형
+
+[출력 형식]
+문제 10개를 먼저 출력하고, 구분선(---) 이후 해설과 채점 기준표(루브릭)를 별도로 출력해줘.
+각 문제마다 필수 포함 역사 용어 3가지를 루브릭에 명시해줘.`,
+    slide: `업로드된 한국사 자료로 발표용 슬라이드 개요를 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 주요 사건을 연도순 타임라인 형태로 구성
+- 각 사건명과 가장 중요한 결과 하나씩만 매칭
+- 인과관계 화살표(→)로 흐름 시각화
+
+[출력 형식]
+모든 슬라이드를 빠짐없이 출력해줘.
+[1번 슬라이드 교사용 정답] → [1번 슬라이드 학생용 빈칸] → [2번...] 순으로.
+( ) 안은 꼭 비워두고, 배경색은 밝은색으로.`,
+    report: `업로드된 한국사 자료로 심층 보고서를 작성해줘.
+
+[분당중앙고 출제 경향 반영]
+- 사건 나열이 아닌 인과관계 중심 서사(Narrative) 구성
+- 앞선 사건이 뒤 사건에 어떤 원인으로 작용했는지 연결
+- 당시 다양한 역사적 평가와 관점도 함께 서술
+
+[출력 형식]
+보고서 마지막에 핵심 키워드 빈칸( )을 뚫은 백지 복습용 워크시트 추가.`,
+  },
+  통합사회: {
+    concept: `업로드된 통합사회 자료로 핵심 개념 요약집을 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 선택형 100% 출제. 도표·지도·자료 해석 개념 강조
+- 함정 선지로 잘 쓰이는 헷갈리는 개념 쌍을 명확히 구분
+- 학습지·추가 자료의 세부 개념까지 빠짐없이 포함
+
+[출력 형식]
+교사용 정답본과 학생용 빈칸 테스트 두 버전.
+핵심 개념어와 사례의 중요 포인트를 ( )로 처리.
+마지막에 OX 퀴즈 10문제 + 해설 추가.`,
+    quiz: `업로드된 통합사회 자료로 객관식 대비 심화 문제 10문제를 출제해줘.
+
+[분당중앙고 출제 경향 반영]
+- 선택형만 출제되므로 함정 선지 식별 훈련에 집중
+- 도표·그래프·지도·연표 자료 해석 문제 포함
+- 오답 선지가 "왜 틀렸는지" 근거와 함께 해설
+
+[출력 형식]
+문제 10개 먼저 출력 후 구분선(---) 이후 해설 별도 출력.
+각 문제마다 정답·오답 선지 상세 해설 포함.`,
+    slide: `업로드된 통합사회 자료로 슬라이드 개요를 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 핵심 개념어 정의를 한 줄로 요약하고 현실 사례와 매칭
+- 도표·지도·연표 이미지 자료가 의미하는 바를 상세히 설명
+
+[출력 형식]
+[1번 슬라이드 교사용] → [1번 슬라이드 학생용 빈칸] 순으로 끝까지 출력.
+( ) 안은 꼭 비워두고, 배경색은 밝은색.`,
+    report: `업로드된 통합사회 자료로 심층 보고서를 작성해줘.
+
+[분당중앙고 출제 경향 반영]
+- 사회 현상의 발생 배경·진행 과정·긍정/부정적 영향 다각도 분석
+- 도표·지도 자료가 의미하는 바를 최대한 상세히 설명
+- 시험 직전 활용용 단답형·서술형 Q&A 스터디 가이드 포함`,
+  },
+  영어: {
+    concept: `업로드된 영어 지문/교재를 분석해서 핵심 어법 요약집을 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 어법 오류 찾기 유형 집중: 능동/수동태, 준동사(분사·부정사), 수일치, 전치사
+- 조건 영작 유형 대비: 품사 변형(동사→분사, 능동→수동 등) 핵심 패턴 정리
+- 부교재 지문의 주요 어법 포인트를 문장별로 정리
+
+[출력 형식]
+교사용 정답본과 학생용 빈칸 테스트 두 버전.
+빈칸 워크시트를 마지막에 추가해줘.`,
+    quiz: `업로드된 영어 지문으로 서술형 문제를 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 유형 1: 밑줄 친 어법상 오류를 찾아 바르게 고치기
+  (능동/수동, 준동사, 수일치, 전치사 누락 중심)
+- 유형 2: 조건 영작 — 주어진 단어를 모두 한 번씩 사용, 문맥에 맞게 어형 변형 필수
+- 어형 변형 미이행 시 0점 처리 기준 명시
+
+[출력 형식]
+문제 먼저 출력 후 구분선(---) 이후 해설 별도 출력.
+각 문제마다 채점 기준(어형 변형 조건, 부분 점수 기준) 상세히 명시.`,
+    slide: `업로드된 영어 본문으로 수업용 슬라이드를 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 슬라이드 1장당 본문 1개 문단 배정
+- 핵심 어법(수동태·준동사·연결사 등)이 포함된 대표 문장 강조
+- 출제 포인트 어법을 빈칸으로 처리
+
+[출력 형식]
+[1번 슬라이드 교사용] → [1번 슬라이드 학생용 빈칸] 순으로 끝까지.`,
+    report: `업로드된 영어 본문 전체를 한 문장씩 분석하는 상세 보고서를 작성해줘.
+
+[분당중앙고 출제 경향 반영]
+- [영어 원문] - [직독직해] - [핵심 어법 및 출제 포인트] 순으로 모든 문장 해설
+- 어법 오류 찾기 유형으로 출제될 포인트 명시
+- 보고서 마지막에 본문 빈칸 뚫기 워크시트 추가
+  (수일치·시제·태·접속사·핵심 어휘·전치사 부분 빈칸 처리)`,
+  },
+  과학: {
+    concept: `업로드된 통합과학 자료로 핵심 개념 요약집을 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 과학중점학교 수준의 심화 개념 포함
+- 단순 암기보다 인과관계 중심 설명
+- 계산 문제에 필요한 공식과 단위 환산 방법 강조
+- 물리·화학 파트 특히 상세히
+
+[출력 형식]
+교사용 정답본과 학생용 빈칸 테스트 두 버전.
+핵심 과학 용어와 수치 부분을 ( )로 처리.`,
+    quiz: `업로드된 통합과학 자료로 서술형 문제 10문제를 출제해줘.
+
+[분당중앙고 출제 경향 반영]
+- 논술형 25점 고배점 대비
+- 반드시 "제시어를 포함하여 서술하시오" 조건 포함
+- 계산 과정을 단계별로 서술하는 문제 포함
+- 헷갈리는 두 개념 공통점/차이점 비교 문제 포함
+- 조건 변경 시 결과 예측 문제 포함
+
+[출력 형식]
+문제 10개 먼저 출력 후 구분선(---) 이후 해설 별도.
+각 문제마다 제시어 조건과 채점 루브릭(필수 과학 용어 3개) 명시.`,
+    slide: `업로드된 통합과학 자료로 슬라이드를 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 핵심 과학 현상 2가지를 비교/대조하는 표 형태 구성
+- 상호작용이나 흐름을 화살표(→, ↑, ↓)로 시각화
+- 계산 공식과 단위 명확히 표시
+
+[출력 형식]
+[1번 슬라이드 교사용] → [1번 슬라이드 학생용 빈칸] 순으로 끝까지.
+핵심 과학 용어와 수치를 ( )로 처리.`,
+    report: `업로드된 통합과학 자료로 심층 보고서를 작성해줘.
+
+[분당중앙고 출제 경향 반영]
+- 과학적 원리의 인과관계를 단계별로 상세히 설명
+- "만약 A 조건이 사라진다면 이 현상은 어떻게 변할까?" 심화 질문 포함
+- 계산 문제 트레이싱(Tracing) 표 예시 포함
+
+[출력 형식]
+보고서 마지막에 핵심 키워드 빈칸 백지 복습 워크시트 추가.
+심화 질문과 모범 답안을 문제/해설 분리 출력.`,
+  },
+  국어: {
+    concept: `업로드된 국어 자료로 핵심 개념 요약집을 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 교과서 + 보충자료 연계 학습 반영
+- 문법/문학/비문학 영역별 핵심 정리
+- 논술형 3문항(20점) 대비 서술 포인트 강조
+
+[출력 형식]
+교사용 정답본과 학생용 빈칸 테스트 두 버전.
+백지 복습용 워크시트를 마지막에 추가.`,
+    quiz: `업로드된 국어 자료로 서술형 문제 10문제를 출제해줘.
+
+[분당중앙고 출제 경향 반영]
+- 논술형 3문항 20점 배점 대비
+- 문법: 형태소 분석·음운 변동 규칙 근거 서술 문제
+- 문학: 화자 정서 변화·상징 소재 의미·표현법 효과 서술 문제
+- 비문학: 논지 전개 방식·인과관계·원리 적용 문제
+
+[출력 형식]
+문제 10개 먼저 출력 후 구분선(---) 이후 해설 별도.
+각 문제마다 핵심 키워드 3가지와 채점 루브릭 포함.`,
+    slide: `업로드된 국어 자료로 슬라이드를 만들어줘.
+
+[분당중앙고 출제 경향 반영]
+- 문법: 핵심 규칙·적용 예시·예외 규정을 표로 정리
+- 문학: 화자 정서 변화·주요 상징 소재 시각화
+- 비문학: 논지 전개 방식을 구조도로 표현
+
+[출력 형식]
+[1번 슬라이드 교사용] → [1번 슬라이드 학생용 빈칸] 순으로 끝까지.`,
+    report: `업로드된 국어 자료로 심층 보고서를 작성해줘.
+
+[분당중앙고 출제 경향 반영]
+- 보충자료 포함 범위 전체 분석
+- 문법: 개념 설명 + 메타인지 점검 워크시트
+- 문학: 시대적 배경·작가 경향·표현상 특징 종합 분석
+
+[출력 형식]
+보고서 마지막에 핵심 키워드 빈칸 백지 복습 워크시트 추가.`,
+  },
+};
+
+let selectedSubject = null;
+let selectedOutput = null;
+
+function selectSubject(subj) {
+  selectedSubject = subj;
+  document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-subj="' + subj + '"]').classList.add('active');
+
+  const info = subjectInfo[subj];
+  const card = document.getElementById('info-card');
+  const tagHTML = info.tags.map(([t, type]) => '<span class="tag ' + type + '">' + t + '</span>').join('');
+  card.innerHTML = '<div class="info-title">분당중앙고 출제 포인트</div><div class="tags">' + tagHTML + '</div><div class="tip">' + info.tip + '</div>';
+  card.classList.add('visible');
+
+  document.getElementById('prompt-box').classList.remove('visible');
+  checkReady();
+}
+
+function selectOutput(out) {
+  selectedOutput = out;
+  document.querySelectorAll('.output-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-out="' + out + '"]').classList.add('active');
+  document.getElementById('prompt-box').classList.remove('visible');
+  checkReady();
+}
+
+function checkReady() {
+  document.getElementById('gen-btn').disabled = !(selectedSubject && selectedOutput);
+}
+
+function generate() {
+  if (!selectedSubject || !selectedOutput) return;
+  const prompt = prompts[selectedSubject][selectedOutput];
+  document.getElementById('prompt-text').textContent = prompt;
+  document.getElementById('prompt-box').classList.add('visible');
+  setTimeout(() => {
+    document.getElementById('prompt-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function copyPrompt() {
+  const text = document.getElementById('prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '복사됨 ✓';
+    btn.classList.add('done');
+    setTimeout(() => {
+      btn.textContent = '복사하기';
+      btn.classList.remove('done');
+    }, 2500);
+  });
+}
+</script>
+</body>
+</html>
